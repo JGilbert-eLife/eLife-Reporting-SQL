@@ -17,6 +17,10 @@ tday=`date +%Y_%m_%d`
 echo ".separator \",\"" > /tmp/sql.cmds #
 
 # Generate input .csv files for required tables if corresponding EJP output file is present
+# Add SQL commands to clear import tables, import data into import tables, and move table to main tables, if present
+# If EJP output files for today are not present, do nothing
+
+#Initial Submission data
 
 if [ -e ejp_query_tool_query_id_209_SQL_Initial_${tday}_eLife.csv ]; then
 initialinput="ejp_query_tool_query_id_209_SQL_Initial_${tday}_eLife.csv"
@@ -29,6 +33,8 @@ echo "insert into initial select * from initial_import where initial_import.ms n
 else :
 fi
 
+#Full Submission data
+
 if [ -e ejp_query_tool_query_id_210_SQL_Full_${tday}_eLife.csv ]; then
 fullinput="ejp_query_tool_query_id_210_SQL_Full_${tday}_eLife.csv"
 egrep "^\"[[:digit:]]*\"," $fullinput > full_tmp.csv
@@ -39,6 +45,8 @@ echo ".import full.csv full_import">> /tmp/sql.cmds #
 echo "insert into full select * from full_import where full_import.ms not in (select ms from full);">> /tmp/sql.cmds #
 else :
 fi
+
+#Rev1 Submission data
 
 if [ -e ejp_query_tool_query_id_211_SQL_Rev1_${tday}_eLife.csv ]; then
 rev1input="ejp_query_tool_query_id_211_SQL_Rev1_${tday}_eLife.csv"
@@ -51,6 +59,8 @@ echo "insert into rev1 select * from rev1_import where rev1_import.ms not in (se
 else :
 fi
 
+#Rev2 Submission data
+
 if [ -e ejp_query_tool_query_id_212_SQL_Rev2_${tday}_eLife.csv ]; then
 rev2input="ejp_query_tool_query_id_212_SQL_Rev2_${tday}_eLife.csv"
 egrep "^\"[[:digit:]]*\"," $rev2input > rev2_tmp.csv
@@ -61,6 +71,8 @@ echo ".import rev2.csv rev2_import">> /tmp/sql.cmds #
 echo "insert into rev2 select * from rev2_import where rev2_import.ms not in (select ms from rev2);">> /tmp/sql.cmds #
 else :
 fi
+
+#Rev3 Submission data
 
 if [ -e ejp_query_tool_query_id_213_SQL_Rev3_${tday}_eLife.csv ]; then
 rev3input="ejp_query_tool_query_id_213_SQL_Rev3_${tday}_eLife.csv"
@@ -73,6 +85,8 @@ echo "insert into rev3 select * from rev3_import where rev3_import.ms not in (se
 else :
 fi
 
+#Rev4 Submission data
+
 if [ -e ejp_query_tool_query_id_214_SQL_Rev4_${tday}_eLife.csv ]; then
 rev4input="ejp_query_tool_query_id_214_SQL_Rev4_${tday}_eLife.csv"
 egrep "^\"[[:digit:]]*\"," $rev4input > rev4_tmp.csv
@@ -83,6 +97,8 @@ echo ".import rev4.csv rev4_import">> /tmp/sql.cmds #
 echo "insert into rev4 select * from rev4_import where rev4_import.ms not in (select ms from rev4);">> /tmp/sql.cmds #
 else :
 fi
+
+#Publication date data
 
 if [ -e published.csv ]; then
 echo "delete from published_import;">> /tmp/sql.cmds #
@@ -95,6 +111,6 @@ fi
 
 cat /tmp/sql.cmds | sqlite3 elife_paper_stats.sqlite
 
-# Remove SQL command fileß
+# Remove SQL command file
 
 rm /tmp/sql.cmds
