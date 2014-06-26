@@ -27,9 +27,9 @@ initialinput="ejp_query_tool_query_id_209_SQL_Initial_${tday}_eLife.csv"
 egrep "^\"[[:digit:]]*\"," $initialinput > initial_tmp.csv
 tr -d "\"" < initial_tmp.csv > initial.csv
 rm initial_tmp.csv
-echo "delete from initial_import;">> /tmp/sql.cmds #
+echo "delete FROM initial_import;">> /tmp/sql.cmds #
 echo ".import initial.csv initial_import">> /tmp/sql.cmds #
-echo "insert into initial select * from initial_import where initial_import.ms not in (select ms from initial);">> /tmp/sql.cmds #
+echo "insert INTO initial SELECT * FROM initial_import WHERE initial_import.ms NOT IN (SELECT ms FROM initial);">> /tmp/sql.cmds #
 else :
 fi
 
@@ -40,9 +40,9 @@ fullinput="ejp_query_tool_query_id_210_SQL_Full_${tday}_eLife.csv"
 egrep "^\"[[:digit:]]*\"," $fullinput > full_tmp.csv
 tr -d "\"" < full_tmp.csv > full.csv
 rm full_tmp.csv
-echo "delete from full_import;">> /tmp/sql.cmds #
+echo "delete FROM full_import;">> /tmp/sql.cmds #
 echo ".import full.csv full_import">> /tmp/sql.cmds #
-echo "insert into full select * from full_import where full_import.ms not in (select ms from full);">> /tmp/sql.cmds #
+echo "insert INTO full SELECT * FROM full_import WHERE full_import.ms NOT IN (SELECT ms FROM full);">> /tmp/sql.cmds #
 else :
 fi
 
@@ -53,9 +53,9 @@ rev1input="ejp_query_tool_query_id_211_SQL_Rev1_${tday}_eLife.csv"
 egrep "^\"[[:digit:]]*\"," $rev1input > rev1_tmp.csv
 tr -d "\"" < rev1_tmp.csv > rev1.csv
 rm rev1_tmp.csv
-echo "delete from rev1_import;">> /tmp/sql.cmds #
+echo "delete FROM rev1_import;">> /tmp/sql.cmds #
 echo ".import rev1.csv rev1_import">> /tmp/sql.cmds #
-echo "insert into rev1 select * from rev1_import where rev1_import.ms not in (select ms from rev1);">> /tmp/sql.cmds #
+echo "insert INTO rev1 SELECT * FROM rev1_import WHERE rev1_import.ms NOT IN (SELECT ms FROM rev1);">> /tmp/sql.cmds #
 else :
 fi
 
@@ -66,9 +66,9 @@ rev2input="ejp_query_tool_query_id_212_SQL_Rev2_${tday}_eLife.csv"
 egrep "^\"[[:digit:]]*\"," $rev2input > rev2_tmp.csv
 tr -d "\"" < rev2_tmp.csv > rev2.csv
 rm rev2_tmp.csv
-echo "delete from rev2_import;">> /tmp/sql.cmds #
+echo "delete FROM rev2_import;">> /tmp/sql.cmds #
 echo ".import rev2.csv rev2_import">> /tmp/sql.cmds #
-echo "insert into rev2 select * from rev2_import where rev2_import.ms not in (select ms from rev2);">> /tmp/sql.cmds #
+echo "insert INTO rev2 SELECT * FROM rev2_import WHERE rev2_import.ms NOT IN (SELECT ms FROM rev2);">> /tmp/sql.cmds #
 else :
 fi
 
@@ -79,9 +79,9 @@ rev3input="ejp_query_tool_query_id_213_SQL_Rev3_${tday}_eLife.csv"
 egrep "^\"[[:digit:]]*\"," $rev3input > rev3_tmp.csv
 tr -d "\"" < rev3_tmp.csv > rev3.csv
 rm rev3_tmp.csv
-echo "delete from rev3_import;">> /tmp/sql.cmds #
+echo "delete FROM rev3_import;">> /tmp/sql.cmds #
 echo ".import rev3.csv rev3_import">> /tmp/sql.cmds #
-echo "insert into rev3 select * from rev3_import where rev3_import.ms not in (select ms from rev3);">> /tmp/sql.cmds #
+echo "insert INTO rev3 SELECT * FROM rev3_import WHERE rev3_import.ms NOT IN (SELECT ms FROM rev3);">> /tmp/sql.cmds #
 else :
 fi
 
@@ -92,20 +92,43 @@ rev4input="ejp_query_tool_query_id_214_SQL_Rev4_${tday}_eLife.csv"
 egrep "^\"[[:digit:]]*\"," $rev4input > rev4_tmp.csv
 tr -d "\"" < rev4_tmp.csv > rev4.csv
 rm rev4_tmp.csv
-echo "delete from rev4_import;">> /tmp/sql.cmds #
+echo "delete FROM rev4_import;">> /tmp/sql.cmds #
 echo ".import rev4.csv rev4_import">> /tmp/sql.cmds #
-echo "insert into rev4 select * from rev4_import where rev4_import.ms not in (select ms from rev4);">> /tmp/sql.cmds #
+echo "insert INTO rev4 SELECT * FROM rev4_import WHERE rev4_import.ms NOT IN (SELECT ms FROM rev4);">> /tmp/sql.cmds #
+else :
+fi
+
+#Type data
+
+if [ -e ejp_query_tool_query_id_218_SQL_Types_${tday}_eLife.csv ]; then
+typeinput="ejp_query_tool_query_id_218_SQL_Types_${tday}_eLife.csv"
+egrep "^\"[[:digit:]]*\"," $typeinput > type_tmp.csv
+tr -d "\"" < type_tmp.csv > type.csv
+rm type_tmp.csv
+echo "delete FROM type_import;">> /tmp/sql.cmds #
+echo ".import type.csv type_import">> /tmp/sql.cmds #
+echo "insert INTO type SELECT * FROM type_import WHERE type_import.ms NOT IN (SELECT ms FROM type);">> /tmp/sql.cmds #
 else :
 fi
 
 #Publication date data
 
 if [ -e published.csv ]; then
-echo "delete from published_import;">> /tmp/sql.cmds #
+echo "delete FROM published_import;">> /tmp/sql.cmds #
 echo ".import published.csv published_import">> /tmp/sql.cmds #
-echo "insert into published select * from published_import where published_import.ms not in (select ms from published);">> /tmp/sql.cmds #
+echo "insert INTO published SELECT * FROM published_import WHERE published_import.ms NOT IN (SELECT ms FROM published);">> /tmp/sql.cmds #
 else :
 fi
+
+
+#Provide output CSV of all data
+
+echo ".header on">> /tmp/sql.cmds #
+echo ".mode csv">> /tmp/sql.cmds #
+echo ".output paper_history${tday}.csv">> /tmp/sql.cmds #
+
+echo "SELECT i.ms,i.initial_qc_dt,i.initial_decision,i.initial_decision_dt, f.full_qc_dt,f.full_decision,f.full_decision_dt, r1.rev1_qc_dt,r1.rev1_decision,r1.rev1_decision_dt, r2.rev2_qc_dt,r2.rev2_decision,r2.rev2_decision_dt, r3.rev3_qc_dt,r3.rev3_decision,r3.rev3_decision_dt, p.poa_dt,p.vor_dt FROM initial i LEFT JOIN full f ON i.ms=f.ms LEFT JOIN rev1 r1 ON i.ms=r1.ms LEFT JOIN rev2 r2 ON i.ms=r2.ms LEFT JOIN rev3 r3 ON i.ms=r3.ms LEFT JOIN published p ON i.ms=p.ms ORDER BY i.ms;">> /tmp/sql.cmds #
+
 
 # Pipe SQL command file to SQLite and command SQLite to open database
 
