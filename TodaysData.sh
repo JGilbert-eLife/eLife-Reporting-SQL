@@ -42,9 +42,7 @@ echo ".separator \",\"" > /tmp/sql.cmds #
 #Initial Submission data
 
 if [ -e $initialinput ]; then
-egrep "^\"[[:digit:]]*\"," $initialinput > initial_tmp.csv
-tr -d "\"" < initial_tmp.csv > initial.csv
-rm initial_tmp.csv
+egrep "^\"[[:digit:]]*\"," $initialinput | tr -d "\"" | tr "/" "-" > initial.csv
 echo "DELETE FROM initial_import;" >> /tmp/sql.cmds #
 echo ".import initial.csv initial_import" >> /tmp/sql.cmds #
 echo "INSERT INTO initial SELECT * FROM initial_import WHERE initial_import.ms NOT IN (SELECT ms FROM initial);" >> /tmp/sql.cmds #
@@ -55,9 +53,7 @@ fi
 #Full Submission data
 
 if [ -e $fullinput ]; then
-egrep "^\"[[:digit:]]*\"," $fullinput > full_tmp.csv
-tr -d "\"" < full_tmp.csv > full.csv
-rm full_tmp.csv
+egrep "^\"[[:digit:]]*\"," $fullinput | tr -d "\"" | tr "/" "-" > full.csv
 echo "DELETE FROM full_import;" >> /tmp/sql.cmds #
 echo ".import full.csv full_import" >> /tmp/sql.cmds #
 echo "INSERT INTO full SELECT * FROM full_import WHERE full_import.ms NOT IN (SELECT ms FROM full);" >> /tmp/sql.cmds #
@@ -68,9 +64,7 @@ fi
 #Rev1 Submission data
 
 if [ -e $rev1input ]; then
-egrep "^\"[[:digit:]]*\"," $rev1input > rev1_tmp.csv
-tr -d "\"" < rev1_tmp.csv > rev1.csv
-rm rev1_tmp.csv
+egrep "^\"[[:digit:]]*\"," $rev1input | tr -d "\"" | tr "/" "-" > rev1.csv
 echo "DELETE FROM rev1_import;" >> /tmp/sql.cmds #
 echo ".import rev1.csv rev1_import" >> /tmp/sql.cmds #
 echo "insert INTO rev1 SELECT * FROM rev1_import WHERE rev1_import.ms NOT IN (SELECT ms FROM rev1);" >> /tmp/sql.cmds #
@@ -81,9 +75,7 @@ fi
 #Rev2 Submission data
 
 if [ -e $rev2input ]; then
-egrep "^\"[[:digit:]]*\"," $rev2input > rev2_tmp.csv
-tr -d "\"" < rev2_tmp.csv > rev2.csv
-rm rev2_tmp.csv
+egrep "^\"[[:digit:]]*\"," $rev2input | tr -d "\"" | tr "/" "-" > rev2.csv
 echo "DELETE FROM rev2_import;" >> /tmp/sql.cmds #
 echo ".import rev2.csv rev2_import" >> /tmp/sql.cmds #
 echo "insert INTO rev2 SELECT * FROM rev2_import WHERE rev2_import.ms NOT IN (SELECT ms FROM rev2);" >> /tmp/sql.cmds #
@@ -94,9 +86,7 @@ fi
 #Rev3 Submission data
 
 if [ -e $rev3input ]; then
-egrep "^\"[[:digit:]]*\"," $rev3input > rev3_tmp.csv
-tr -d "\"" < rev3_tmp.csv > rev3.csv
-rm rev3_tmp.csv
+egrep "^\"[[:digit:]]*\"," $rev3input | tr -d "\"" | tr "/" "-" > rev3.csv
 echo "DELETE FROM rev3_import;" >> /tmp/sql.cmds #
 echo ".import rev3.csv rev3_import" >> /tmp/sql.cmds #
 echo "insert INTO rev3 SELECT * FROM rev3_import WHERE rev3_import.ms NOT IN (SELECT ms FROM rev3);" >> /tmp/sql.cmds #
@@ -107,9 +97,7 @@ fi
 #Rev4 Submission data
 
 if [ -e $rev4input ]; then
-egrep "^\"[[:digit:]]*\"," $rev4input > rev4_tmp.csv
-tr -d "\"" < rev4_tmp.csv > rev4.csv
-rm rev4_tmp.csv
+egrep "^\"[[:digit:]]*\"," $rev4input | tr -d "\"" | tr "/" "-" > rev4.csv
 echo "DELETE FROM rev4_import;" >> /tmp/sql.cmds #
 echo ".import rev4.csv rev4_import" >> /tmp/sql.cmds #
 echo "INSERT INTO rev4 SELECT * FROM rev4_import WHERE rev4_import.ms NOT IN (SELECT ms FROM rev4);" >> /tmp/sql.cmds #
@@ -120,9 +108,7 @@ fi
 #Type data
 
 if [ -e $typeinput ]; then
-egrep "^\"[[:digit:]]*\"," $typeinput > type_tmp.csv
-tr -d "\"" < type_tmp.csv > type.csv
-rm type_tmp.csv
+egrep "^\"[[:digit:]]*\"," $typeinput | tr -d "\"" > type.csv
 echo "DELETE FROM type_import;" >> /tmp/sql.cmds #
 echo ".import type.csv type_import" >> /tmp/sql.cmds #
 echo "insert INTO type SELECT * FROM type_import WHERE type_import.ms NOT IN (SELECT ms FROM type);" >> /tmp/sql.cmds #
