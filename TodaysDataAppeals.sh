@@ -74,13 +74,6 @@ echo "insert INTO type SELECT * FROM type_import WHERE type_import.ms NOT IN (SE
 echo "Updated Type codes"
 	;;
 
-	221.csv) #Senior editor data
-echo "DELETE FROM senior_editor_import;" >> /tmp/sql.cmds #
-echo ".import /Users/GilbertJ/Documents/eLife_stats/stat_downloads/221.csv senior_editor_import" >> /tmp/sql.cmds #
-echo "insert INTO senior_editor SELECT * FROM senior_editor_import WHERE senior_editor_import.ms NOT IN (SELECT ms FROM senior_editor);" >> /tmp/sql.cmds #
-echo "Updated Senior Editors"
-	;;
-
 esac
 
 done
@@ -99,9 +92,9 @@ fi
 
 echo ".header on" >> /tmp/sql.cmds
 echo ".mode csv" >> /tmp/sql.cmds
-echo ".output paper_history${tday}.csv" >> /tmp/sql.cmds
+echo ".output paper_history${tday}_Appeals.csv" >> /tmp/sql.cmds
 
-echo "SELECT i.ms,se.senior_editor,i.initial_qc_dt,i.initial_decision,i.initial_decision_dt,f.full_qc_dt,f.full_decision,f.full_decision_dt,r1.rev1_qc_dt,r1.rev1_decision,r1.rev1_decision_dt,r2.rev2_qc_dt,r2.rev2_decision,r2.rev2_decision_dt,r3.rev3_qc_dt,r3.rev3_decision,r3.rev3_decision_dt,p.poa_dt,p.vor_dt FROM initial i LEFT JOIN senior_editor se ON i.ms=se.ms LEFT JOIN full f ON i.ms=f.ms LEFT JOIN rev1 r1 ON i.ms=r1.ms LEFT JOIN rev2 r2 ON i.ms=r2.ms LEFT JOIN rev3 r3 ON i.ms=r3.ms LEFT JOIN published p ON i.ms=p.ms ORDER BY i.ms;" >> /tmp/sql.cmds #
+echo "SELECT i.ms,se.senior_editor,i.initial_qc_dt,i.initial_decision,i.initial_decision_dt,i.appeal,f.full_qc_dt,f.full_decision,f.full_decision_dt,f.appeal,r1.rev1_qc_dt,r1.rev1_decision,r1.rev1_decision_dt,r1.appeal,r2.rev2_qc_dt,r2.rev2_decision,r2.rev2_decision_dt,r2.appeal,r3.rev3_qc_dt,r3.rev3_decision,r3.rev3_decision_dt,r3.appeal,p.poa_dt,p.vor_dt FROM initial i LEFT JOIN senior_editor se ON i.ms=se.ms LEFT JOIN full f ON i.ms=f.ms LEFT JOIN rev1 r1 ON i.ms=r1.ms LEFT JOIN rev2 r2 ON i.ms=r2.ms LEFT JOIN rev3 r3 ON i.ms=r3.ms LEFT JOIN published p ON i.ms=p.ms ORDER BY i.ms;" >> /tmp/sql.cmds #
 
 # Pipe SQL command file to SQLite and command SQLite to open database
 
