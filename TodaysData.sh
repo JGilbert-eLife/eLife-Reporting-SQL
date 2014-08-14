@@ -4,21 +4,23 @@
 # Requires data downloaded from eLife submission database
 # For use generating monthly stats
 # Note: terminal must be pointed to correct directory before running this script
-# issue: cd ~/eLife_stats before summoning script to change to correct directory
+# issue: cd before summoning script to change to correct directory
 # issue: sh Todaysdata.sh to run script
 
-# Set file path to download folder
+# Import path to download folder from configuration file
 
-path="/Users/GilbertJ/Documents/eLife_stats/stat_downloads"
+source config.cfg
 
 # Get today's date
 
-tday=`date +%Y_%m_%d`
+tday=$(date +%Y_%m_%d)
 
 # Generate SQL/SQLite commands to import data
 # Commands stored in 'sql.cmds' file
 
 echo ".separator \",\"" > /tmp/sql.cmds
+
+# Run import commands for each dataset ID number. These will only run if the relevent file is present in the download folder
  
 for filename in $( ls $path/ ); do
 
@@ -97,6 +99,7 @@ esac
 done
 
 #Publication date data
+#This is currently pulled from a manually updated file: in the future, it will hopefully be replaced with another downloaded dataset
 
 if [ -e published.csv ]; then
 echo "DELETE FROM published_import;" >> /tmp/sql.cmds #
@@ -106,17 +109,20 @@ echo "UPDATE published SET vor_dt = (SELECT published_import.vor_dt FROM publish
 echo "Publication dates updated"
 fi
 
-#Provide output CSV of all data
+#Provide output CSV file containing paper histories
 
 echo ".header on" >> /tmp/sql.cmds
 echo ".mode csv" >> /tmp/sql.cmds
 echo ".output paper_history${tday}.csv" >> /tmp/sql.cmds
 
-echo "SELECT i.ms,se.senior_editor,i.initial_qc_dt,i.initial_decision,i.initial_decision_dt,f.full_qc_dt,f.full_decision,f.full_decision_dt,r1.rev1_qc_dt,r1.rev1_decision,r1.rev1_decision_dt,r2.rev2_qc_dt,r2.rev2_decision,r2.rev2_decision_dt,r3.rev3_qc_dt,r3.rev3_decision,r3.rev3_decision_dt,p.poa_dt,p.vor_dt FROM initial i LEFT JOIN senior_editor se ON i.ms=se.ms LEFT JOIN full f ON i.ms=f.ms LEFT JOIN rev1 r1 ON i.ms=r1.ms LEFT JOIN rev2 r2 ON i.ms=r2.ms LEFT JOIN rev3 r3 ON i.ms=r3.ms LEFT JOIN published p ON i.ms=p.ms ORDER BY i.ms;" >> /tmp/sql.cmds #
+echo "SELECT i.ms,se.senior_editor,i.initial_qc_dt,i.initial_decision,i.initial_decision_dt,re.reviewing_editor,f.full_qc_dt,f.full_decision,f.full_decision_dt,r1.rev1_qc_dt,r1.rev1_decision,r1.rev1_decision_dt,r2.rev2_qc_dt,r2.rev2_decision,r2.rev2_decision_dt,r3.rev3_qc_dt,r3.rev3_decision,r3.rev3_decision_dt,p.poa_dt,p.vor_dt FROM initial i LEFT JOIN senior_editor se ON i.ms=se.ms LEFT JOIN reviewing_editor re ON i.ms=re.ms LEFT JOIN full f ON i.ms=f.ms LEFT JOIN rev1 r1 ON i.ms=r1.ms LEFT JOIN rev2 r2 ON i.ms=r2.ms LEFT JOIN rev3 r3 ON i.ms=r3.ms LEFT JOIN published p ON i.ms=p.ms ORDER BY i.ms;" >> /tmp/sql.cmds #
+
+
+#Provide second output CSV file containing appeal information
 
 echo ".output paper_history${tday}_Appeals.csv" >> /tmp/sql.cmds
 
-echo "SELECT i.ms,se.senior_editor,i.initial_qc_dt,i.initial_decision,i.initial_decision_dt,i.appeal,i.appeal_dt,f.full_qc_dt,f.full_decision,f.full_decision_dt,f.appeal,r1.rev1_qc_dt,r1.rev1_decision,r1.rev1_decision_dt,r1.appeal,r2.rev2_qc_dt,r2.rev2_decision,r2.rev2_decision_dt,r2.appeal,r3.rev3_qc_dt,r3.rev3_decision,r3.rev3_decision_dt,r3.appeal,p.poa_dt,p.vor_dt FROM initial i LEFT JOIN senior_editor se ON i.ms=se.ms LEFT JOIN full f ON i.ms=f.ms LEFT JOIN rev1 r1 ON i.ms=r1.ms LEFT JOIN rev2 r2 ON i.ms=r2.ms LEFT JOIN rev3 r3 ON i.ms=r3.ms LEFT JOIN published p ON i.ms=p.ms ORDER BY i.ms;" >> /tmp/sql.cmds #
+echo "SELECT i.ms,se.senior_editor,i.initial_qc_dt,i.initial_decision,i.initial_decision_dt,i.appeal,i.appeal_dt,re.reviewing_editor,f.full_qc_dt,f.full_decision,f.full_decision_dt,f.appeal,r1.rev1_qc_dt,r1.rev1_decision,r1.rev1_decision_dt,r1.appeal,r2.rev2_qc_dt,r2.rev2_decision,r2.rev2_decision_dt,r2.appeal,r3.rev3_qc_dt,r3.rev3_decision,r3.rev3_decision_dt,r3.appeal,p.poa_dt,p.vor_dt FROM initial i LEFT JOIN senior_editor se ON i.ms=se.ms LEFT JOIN reviewing_editor re ON i.ms=re.ms LEFT JOIN full f ON i.ms=f.ms LEFT JOIN rev1 r1 ON i.ms=r1.ms LEFT JOIN rev2 r2 ON i.ms=r2.ms LEFT JOIN rev3 r3 ON i.ms=r3.ms LEFT JOIN published p ON i.ms=p.ms ORDER BY i.ms;" >> /tmp/sql.cmds #
 
 # Pipe SQL command file to SQLite and command SQLite to open database
 
