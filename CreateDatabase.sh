@@ -14,7 +14,13 @@ echo "CREATE TABLE "rev4_import" ("ms" INTEGER PRIMARY KEY,"rev4_qc_dt" DATE,"re
 echo "CREATE TABLE "senior_editor_import" ("ms" INTEGER PRIMARY KEY,"senior_editor" INTEGER,"se_assign_dt" DATE);" >> /tmp/sql.cmds
 echo "CREATE TABLE "reviewing_editor_import" ("ms" INTEGER PRIMARY KEY,"reviewing_editor" INTEGER,"re_assign_dt" DATE);" >> /tmp/sql.cmds
 echo "CREATE TABLE "published_import" ("ms" INTEGER PRIMARY KEY,"poa_dt" DATE,"vor_dt" DATE);" >> /tmp/sql.cmds
-echo "CREATE TABLE "type_import" ("ms" INTEGER PRIMARY KEY,"type" INTEGER);" >> /tmp/sql.cmds
+echo "CREATE TABLE "type_import" ("ms" INTEGER PRIMARY KEY,"type" TEXT);" >> /tmp/sql.cmds
+echo "CREATE TABLE "type_import_full" ("ms" INTEGER PRIMARY KEY,"type" TEXT);" >> /tmp/sql.cmds
+echo "CREATE TABLE "type_import_rev1" ("ms" INTEGER PRIMARY KEY,"type" TEXT);" >> /tmp/sql.cmds
+echo "CREATE TABLE "type_import_rev2" ("ms" INTEGER PRIMARY KEY,"type" TEXT);" >> /tmp/sql.cmds
+echo "CREATE TABLE "type_import_rev3" ("ms" INTEGER PRIMARY KEY,"type" TEXT);" >> /tmp/sql.cmds
+
+
 
 #Create main tables
 
@@ -27,10 +33,10 @@ echo "CREATE TABLE "rev4" ("ms" INTEGER PRIMARY KEY,"rev4_qc_dt" DATE,"rev4_deci
 echo "CREATE TABLE "senior_editor" ("ms" INTEGER PRIMARY KEY,"senior_editor" INTEGER,"se_assign_dt" DATE);" >> /tmp/sql.cmds
 echo "CREATE TABLE "reviewing_editor" ("ms" INTEGER PRIMARY KEY,"reviewing_editor" INTEGER,"re_assign_dt" DATE);" >> /tmp/sql.cmds
 echo "CREATE TABLE "published" ("ms" INTEGER PRIMARY KEY,"poa_dt" DATE,"vor_dt" DATE);" >> /tmp/sql.cmds
-echo "CREATE TABLE "type" ("ms" INTEGER PRIMARY KEY,"type" INTEGER);" >> /tmp/sql.cmds
+echo "CREATE TABLE "type" ("ms" INTEGER PRIMARY KEY,"type" TEXT);" >> /tmp/sql.cmds
 
 # Pipe SQL command file to SQLite and command SQLite to open database
-70
+
 cat /tmp/sql.cmds | sqlite3 elife_paper_stats.sqlite
 
 # Remove SQL command file
