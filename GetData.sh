@@ -28,25 +28,31 @@ if [ $input == "y" ]; then
 
 	# Set up variables containing the names of the files required by eLife stats database
 
-	initialinput="XXX_query_tool_query_id_209_SQL_Initial_${tday}_eLife.csv"
-	fullinput="XXX_query_tool_query_id_210_SQL_Full_${tday}_eLife.csv"
-	rev1input="XXX_query_tool_query_id_211_SQL_Rev1_${tday}_eLife.csv"
-	rev2input="XXX_query_tool_query_id_212_SQL_Rev2_${tday}_eLife.csv"
-	rev3input="XXX_query_tool_query_id_213_SQL_Rev3_${tday}_eLife.csv"
-	rev4input="XXX_query_tool_query_id_214_SQL_Rev4_${tday}_eLife.csv"
-	typeinput="XXX_query_tool_query_id_218_SQL_Types_${tday}_eLife.csv"
-	typefullinput="XXX_query_tool_query_id_240_SQL_Types_Full_${tday}_eLife.csv"
-	typerev1input="XXX_query_tool_query_id_241_SQL_Types_Rev1_${tday}_eLife.csv"
-	typerev2input="XXX_query_tool_query_id_245_SQL_Types_Rev2_${tday}_eLife.csv"
-	typerev3input="XXX_query_tool_query_id_246_SQL_Types_Rev3_${tday}_eLife.csv"
-	seinput="XXX_query_tool_query_id_221_SQL_Senior_Editor_${tday}_eLife.csv"
-	reinput="XXX_query_tool_query_id_222_SQL_Reviewing_Editor_${tday}_eLife.csv"
+	initialinput="XXXX_id_209_SQL_Initial_${tday}_eLife.csv"
+	fullinput="XXXX_id_210_SQL_Full_${tday}_eLife.csv"
+	rev1input="XXXX_id_211_SQL_Rev1_${tday}_eLife.csv"
+	rev2input="XXXX_id_212_SQL_Rev2_${tday}_eLife.csv"
+	rev3input="XXXX_id_213_SQL_Rev3_${tday}_eLife.csv"
+	rev4input="XXXX_id_214_SQL_Rev4_${tday}_eLife.csv"
+	typeinput="XXXX_id_218_SQL_Types_${tday}_eLife.csv"
+	typefullinput="XXXX_id_240_SQL_Types_Full_${tday}_eLife.csv"
+	typerev1input="XXXX_id_241_SQL_Types_Rev1_${tday}_eLife.csv"
+	typerev2input="XXXX_id_245_SQL_Types_Rev2_${tday}_eLife.csv"
+	typerev3input="XXXX_id_246_SQL_Types_Rev3_${tday}_eLife.csv"
+	seinput1="XXXX_id_221_SQL_Senior_Editor_1_${tday}_eLife.csv"
+	seinput2="XXXX_id_247_SQL_Senior_Editor_2_${tday}_eLife.csv"
+	seinput3="XXXX_id_248_SQL_Senior_Editor_3_${tday}_eLife.csv"
+	reinput="XXXX_id_222_SQL_Reviewing_Editor_${tday}_eLife.csv"
+	country1input="XXXX_id_250_SQL_Country_1_${tday}_eLife.csv"
+	country2input="XXXX_id_252_SQL_Country_2_${tday}_eLife.csv"
+	country3input="XXXX_id_253_SQL_Country_3_${tday}_eLife.csv"
+
 
 	# For all the filenames listed above, download files and rename to query tool ID number
 
-	for i in ${initialinput} ${fullinput} ${rev1input} ${rev2input} ${rev3input} ${rev4input} ${typeinput} ${typefullinput} ${typerev1input} ${typerev2input} ${typerev3input} ${seinput} ${reinput}; do
+	for i in ${initialinput} ${fullinput} ${rev1input} ${rev2input} ${rev3input} ${rev4input} ${typeinput} ${typefullinput} ${typerev1input} ${typerev2input} ${typerev3input} ${seinput1} ${seinput2} ${seinput3} ${reinput} ${country1input} ${country2input} ${country3input}; do
 		name=$(echo $i | cut -f6 -d'_')
-		/opt/s3-bash.0.02/s3-get -k  $key -s $skeypath /XXXX-XXX-ftp/$i > $path/$i.csv
+		/opt/s3-bash.0.02/s3-get -k  $key -s $skeypath /elife-ejp-ftp/$i > $path/$i.csv
 		egrep "^\"[[:digit:]]*\"," $path/$i.csv | tr -d "\"" > $path/$name.csv
 		rm $path/$i.csv
 		echo "$i"
@@ -70,6 +76,7 @@ echo ".separator \",\"" > /tmp/sql.cmds
 for filename in $( ls $path/ ); do
 
 case $filename in
+
 	209.csv) #Initial Submission data
 echo "DELETE FROM initial_import;" >> /tmp/sql.cmds
 echo ".import $path/209.csv initial_import" >> /tmp/sql.cmds
@@ -118,46 +125,73 @@ echo "UPDATE rev4 SET rev4_decision = (SELECT rev4_import.rev4_decision FROM rev
 echo "Updated Rev4 Submissions"
 	;;
 
-	218.csv) #Type data
+	218.csv) #Type data - combined into one case in order to import information in correct order to account for changes in type through progress
+	#Rev3 Type data
+echo "DELETE FROM type_import_rev3;" >> /tmp/sql.cmds #
+echo ".import $path/246.csv type_import_rev3" >> /tmp/sql.cmds #
+echo "insert INTO type SELECT * FROM type_import_rev3 WHERE type_import_rev3.ms NOT IN (SELECT ms FROM type);" >> /tmp/sql.cmds #
+echo "Updated Rev3 Type codes"
+	
+	#Rev2 Type data
+echo "DELETE FROM type_import_rev2;" >> /tmp/sql.cmds #
+echo ".import $path/245.csv type_import_rev2" >> /tmp/sql.cmds #
+echo "insert INTO type SELECT * FROM type_import_rev2 WHERE type_import_rev2.ms NOT IN (SELECT ms FROM type);" >> /tmp/sql.cmds #
+echo "Updated Rev2 Type codes"
+	
+	#Rev1 Type data
+echo "DELETE FROM type_import_rev1;" >> /tmp/sql.cmds #
+echo ".import $path/241.csv type_import_rev1" >> /tmp/sql.cmds #
+echo "insert INTO type SELECT * FROM type_import_rev1 WHERE type_import_rev1.ms NOT IN (SELECT ms FROM type);" >> /tmp/sql.cmds #
+echo "Updated Rev1 Type codes"
+	
+	#Full Type data
+echo "DELETE FROM type_import_full;" >> /tmp/sql.cmds #
+echo ".import $path/240.csv type_import_full" >> /tmp/sql.cmds #
+echo "insert INTO type SELECT * FROM type_import_full WHERE type_import_full.ms NOT IN (SELECT ms FROM type);" >> /tmp/sql.cmds #
+echo "Updated Full Type codes"
+
+	#Initial Type data
 echo "DELETE FROM type_import;" >> /tmp/sql.cmds #
 echo ".import $path/218.csv type_import" >> /tmp/sql.cmds #
 echo "insert INTO type SELECT * FROM type_import WHERE type_import.ms NOT IN (SELECT ms FROM type);" >> /tmp/sql.cmds #
 echo "Updated Type codes"
 	;;
+	
+	250.csv) #Country data - combined into one case in order to import information in correct order to account for changes in type through progress
+	#Other Country data
+echo "DELETE FROM country_import_other;" >> /tmp/sql.cmds #
+echo ".import $path/253.csv country_import_other" >> /tmp/sql.cmds #
 
-	240.csv) #Full Type data
-echo "DELETE FROM type_import_full;" >> /tmp/sql.cmds #
-echo ".import $path/240.csv type_import_full" >> /tmp/sql.cmds #
-echo "insert INTO type SELECT * FROM type_import_full WHERE type_import_full.ms NOT IN (SELECT ms FROM type);" >> /tmp/sql.cmds #
-echo "Updated Full Type codes"
-	;;
+echo "insert INTO country SELECT * FROM country_import_other WHERE country_import_other.ms NOT IN (SELECT ms FROM country);" >> /tmp/sql.cmds #
+echo "Updated Other Countries"
 
-	241.csv) #Rev1 Type data
-echo "DELETE FROM type_import_rev1;" >> /tmp/sql.cmds #
-echo ".import $path/241.csv type_import_rev1" >> /tmp/sql.cmds #
-echo "insert INTO type SELECT * FROM type_import_rev1 WHERE type_import_rev1.ms NOT IN (SELECT ms FROM type);" >> /tmp/sql.cmds #
-echo "Updated Rev1 Type codes"
-	;;
+echo "DELETE FROM country_import_full;" >> /tmp/sql.cmds #
+echo ".import $path/252.csv country_import_full" >> /tmp/sql.cmds #
+echo "insert INTO country SELECT * FROM country_import_full WHERE country_import_full.ms NOT IN (SELECT ms FROM country);" >> /tmp/sql.cmds #
+echo "Updated Full Countries"
 
-	245.csv) #Rev2 Type data
-echo "DELETE FROM type_import_rev2;" >> /tmp/sql.cmds #
-echo ".import $path/245.csv type_import_rev2" >> /tmp/sql.cmds #
-echo "insert INTO type SELECT * FROM type_import_rev2 WHERE type_import_rev2.ms NOT IN (SELECT ms FROM type);" >> /tmp/sql.cmds #
-echo "Updated Rev2 Type codes"
-	;;
-
-	246.csv) #Rev3 Type data
-echo "DELETE FROM type_import_rev3;" >> /tmp/sql.cmds #
-echo ".import $path/246.csv type_import_rev3" >> /tmp/sql.cmds #
-echo "insert INTO type SELECT * FROM type_import_rev3 WHERE type_import_rev3.ms NOT IN (SELECT ms FROM type);" >> /tmp/sql.cmds #
-echo "Updated Rev3 Type codes"
+echo "DELETE FROM country_import;" >> /tmp/sql.cmds #
+echo ".import $path/250.csv country_import" >> /tmp/sql.cmds #
+echo "insert INTO country SELECT * FROM country_import WHERE country_import.ms NOT IN (SELECT ms FROM country);" >> /tmp/sql.cmds #
+echo "Updated Initial Countries"
 	;;
 
 	221.csv) #Senior editor data
-echo "DELETE FROM senior_editor_import;" >> /tmp/sql.cmds #
-echo ".import $path/221.csv senior_editor_import" >> /tmp/sql.cmds #
-echo "insert INTO senior_editor SELECT * FROM senior_editor_import WHERE senior_editor_import.ms NOT IN (SELECT ms FROM senior_editor);" >> /tmp/sql.cmds #
-echo "Updated Senior Editors"
+
+echo "DELETE FROM senior_editor_import_3;" >> /tmp/sql.cmds #
+echo ".import $path/248.csv senior_editor_import_3" >> /tmp/sql.cmds #
+echo "insert INTO senior_editor SELECT * FROM senior_editor_import_3 WHERE senior_editor_import_3.ms NOT IN (SELECT ms FROM senior_editor);" >> /tmp/sql.cmds #
+echo "Updated Senior Editors 3"
+
+echo "DELETE FROM senior_editor_import_2;" >> /tmp/sql.cmds #
+echo ".import $path/247.csv senior_editor_import_2" >> /tmp/sql.cmds #
+echo "insert INTO senior_editor SELECT * FROM senior_editor_import_2 WHERE senior_editor_import_2.ms NOT IN (SELECT ms FROM senior_editor);" >> /tmp/sql.cmds #
+echo "Updated Senior Editors 2"
+
+echo "DELETE FROM senior_editor_import_1;" >> /tmp/sql.cmds #
+echo ".import $path/221.csv senior_editor_import_1" >> /tmp/sql.cmds #
+echo "insert INTO senior_editor SELECT * FROM senior_editor_import_1 WHERE senior_editor_import_1.ms NOT IN (SELECT ms FROM senior_editor);" >> /tmp/sql.cmds #
+echo "Updated Senior Editors 1"
 	;;
 
 	222.csv) #Reviewing editor data
@@ -189,6 +223,8 @@ echo ".mode csv" >> /tmp/sql.cmds
 echo ".output paper_history${tday}.csv" >> /tmp/sql.cmds
 
 echo "SELECT t.ms,
+t.type,
+c.country,
 se.senior_editor,
 i.initial_qc_dt,
 i.initial_decision,
@@ -206,17 +242,22 @@ r2.rev2_decision_dt,
 r3.rev3_qc_dt,
 r3.rev3_decision,
 r3.rev3_decision_dt,
+r4.rev4_qc_dt,
+r4.rev4_decision,
+r4.rev4_decision_dt,
 p.poa_dt,
 p.vor_dt
 
 FROM type t
 LEFT JOIN initial i ON t.ms=i.ms
+LEFT JOIN country c ON t.ms=c.ms
 LEFT JOIN senior_editor se ON t.ms=se.ms
 LEFT JOIN reviewing_editor re ON t.ms=re.ms
 LEFT JOIN full f ON t.ms=f.ms
 LEFT JOIN rev1 r1 ON t.ms=r1.ms
 LEFT JOIN rev2 r2 ON t.ms=r2.ms
 LEFT JOIN rev3 r3 ON t.ms=r3.ms
+LEFT JOIN rev4 r4 ON t.ms=r4.ms
 LEFT JOIN published p ON t.ms=p.ms
 
 ORDER BY t.ms;" >> /tmp/sql.cmds #
@@ -226,40 +267,8 @@ ORDER BY t.ms;" >> /tmp/sql.cmds #
 echo ".output paper_history${tday}_Appeals.csv" >> /tmp/sql.cmds
 
 echo "SELECT t.ms,
-se.senior_editor,
-i.initial_qc_dt,
-i.initial_decision,
-i.initial_decision_dt,
-re.reviewing_editor,
-f.full_qc_dt,
-f.full_decision,
-f.full_decision_dt,
-r1.rev1_qc_dt,
-r1.rev1_decision,
-r1.rev1_decision_dt,
-r2.rev2_qc_dt,
-r2.rev2_decision,
-r2.rev2_decision_dt,
-r3.rev3_qc_dt,
-r3.rev3_decision,
-r3.rev3_decision_dt,
-p.poa_dt,
-p.vor_dt
-
-FROM type t
-LEFT JOIN initial i ON t.ms=i.ms
-LEFT JOIN senior_editor se ON t.ms=se.ms
-LEFT JOIN reviewing_editor re ON t.ms=re.ms
-LEFT JOIN full f ON t.ms=f.ms
-LEFT JOIN rev1 r1 ON t.ms=r1.ms
-LEFT JOIN rev2 r2 ON t.ms=r2.ms
-LEFT JOIN rev3 r3 ON t.ms=r3.ms
-LEFT JOIN published p ON t.ms=p.ms
-
-ORDER BY t.ms;" >> /tmp/sql.cmds #
-
-
-echo "SELECT t.ms,
+t.type,
+c.country,
 se.senior_editor,
 i.initial_qc_dt,
 i.initial_decision,
@@ -283,17 +292,23 @@ r3.rev3_qc_dt,
 r3.rev3_decision,
 r3.rev3_decision_dt,
 r3.appeal,
+r4.rev4_qc_dt,
+r4.rev4_decision,
+r4.rev4_decision_dt,
+r4.appeal,
 p.poa_dt,
 p.vor_dt
 
 FROM type t
 LEFT JOIN initial i ON t.ms=i.ms
+LEFT JOIN country c ON t.ms=c.ms
 LEFT JOIN senior_editor se ON t.ms=se.ms
 LEFT JOIN reviewing_editor re ON t.ms=re.ms
 LEFT JOIN full f ON t.ms=f.ms
 LEFT JOIN rev1 r1 ON t.ms=r1.ms
 LEFT JOIN rev2 r2 ON t.ms=r2.ms
 LEFT JOIN rev3 r3 ON t.ms=r3.ms
+LEFT JOIN rev4 r4 ON t.ms=r4.ms
 LEFT JOIN published p ON t.ms=p.ms
 
 ORDER BY t.ms;" >> /tmp/sql.cmds #
