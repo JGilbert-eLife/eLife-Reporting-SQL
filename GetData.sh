@@ -3,7 +3,7 @@
 # Script to download and import eLife data into SQLite database
 # For use generating monthly stats
 # Note: terminal must be pointed to correct directory before running this script
-# issue: cd before summoning script to change to correct directory
+# issue: cd path/to/directory before summoning script
 # issue: sh GetData.sh to run script
 
 # Import path to download folder from configuration file
