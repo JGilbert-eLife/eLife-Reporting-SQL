@@ -213,6 +213,7 @@ done
 
 if [ -e published.csv ]; then
 echo "DELETE FROM published_import;" >> /tmp/sql.cmds #
+echo "DELETE FROM published;" >> /tmp/sql.cmds #
 echo ".import published.csv published_import" >> /tmp/sql.cmds #
 echo "INSERT INTO published SELECT * FROM published_import WHERE published_import.ms NOT IN (SELECT ms FROM published);" >> /tmp/sql.cmds #
 echo "UPDATE published SET vor_dt = (SELECT published_import.vor_dt FROM published_import WHERE published.ms=published_import.ms);" >> /tmp/sql.cmds #
