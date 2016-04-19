@@ -16,9 +16,12 @@ tday=$(date +%Y_%m_%d)
 
 # Get user input and decide whether to download new data
 
-echo "Get data? [y/n]"
-
-read input
+if [ -z ${NOCONFIRM+x} ]; then
+    echo "Get data? [y/n]"
+    read input
+else
+    input="y"
+fi
 
 if [ $input == "y" ]; then
 
