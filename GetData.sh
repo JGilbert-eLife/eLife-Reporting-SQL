@@ -2,21 +2,21 @@
 
 # Script to download and import eLife data into SQLite database
 # For use generating monthly stats
-# Note: terminal must be pointed to correct directory before running this script
-# issue: cd path/to/directory before summoning script
 # issue: sh GetData.sh to run script
 
-# Import path to download folder from configuration file
+# Switch to script directory
+dir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
+cd $dir
 
+# Import path to download folder from configuration file
 source config.cfg
 
 # Get today's date
-
 tday=$(date +%Y_%m_%d)
 
-# Get user input and decide whether to download new data
-
+# Skip user input if NOCONFIRM is set (to anything)
 if [ -z ${NOCONFIRM+x} ]; then
+    # Get user input and decide whether to download new data
     echo "Get data? [y/n]"
     read input
 else
