@@ -13,6 +13,7 @@ source config.cfg
 
 # Get today's date
 tday=$(date +%Y_%m_%d)
+tday_out=$(date +%Y-%m-%d)
 
 # Skip user input if NOCONFIRM is set (to anything)
 if [ -z ${NOCONFIRM+x} ]; then
@@ -49,11 +50,14 @@ if [ $input == "y" ]; then
 	country1input="ejp_query_tool_query_id_250_SQL_Country_1_${tday}_eLife.csv"
 	country2input="ejp_query_tool_query_id_252_SQL_Country_2_${tday}_eLife.csv"
 	country3input="ejp_query_tool_query_id_253_SQL_Country_3_${tday}_eLife.csv"
+	institution1input="ejp_query_tool_query_id_298_SQL_Institution_1_${tday}_eLife.csv"
+	institution2input="ejp_query_tool_query_id_299_SQL_Institution_2_${tday}_eLife.csv"
+	institution3input="ejp_query_tool_query_id_300_SQL_Institution_3_${tday}_eLife.csv"
 
 
 	# For all the filenames listed above, download files and rename to query tool ID number
 
-	for i in ${initialinput} ${fullinput} ${rev1input} ${rev2input} ${rev3input} ${rev4input} ${typeinput} ${typefullinput} ${typerev1input} ${typerev2input} ${typerev3input} ${seinput1} ${seinput2} ${seinput3} ${reinput} ${country1input} ${country2input} ${country3input}; do
+	for i in ${initialinput} ${fullinput} ${rev1input} ${rev2input} ${rev3input} ${rev4input} ${typeinput} ${typefullinput} ${typerev1input} ${typerev2input} ${typerev3input} ${seinput1} ${seinput2} ${seinput3} ${reinput} ${country1input} ${country2input} ${country3input} ${institution1input} ${institution2input} ${institution3input}; do
 		name=$(echo $i | cut -f6 -d'_')
 		/opt/s3-bash.0.02/s3-get -k  $key -s $skeypath /elife-ejp-ftp/$i > $path/$i.csv
 		egrep "^\"[[:digit:]]*\"," $path/$i.csv | tr -d "\"" > $path/$name.csv
@@ -164,7 +168,6 @@ echo "Updated Type codes"
 	#Other Country data
 echo "DELETE FROM country_import_other;" >> /tmp/sql.cmds #
 echo ".import $path/253.csv country_import_other" >> /tmp/sql.cmds #
-
 echo "insert INTO country SELECT * FROM country_import_other WHERE country_import_other.ms NOT IN (SELECT ms FROM country);" >> /tmp/sql.cmds #
 echo "Updated Other Countries"
 
@@ -177,6 +180,24 @@ echo "DELETE FROM country_import;" >> /tmp/sql.cmds #
 echo ".import $path/250.csv country_import" >> /tmp/sql.cmds #
 echo "insert INTO country SELECT * FROM country_import WHERE country_import.ms NOT IN (SELECT ms FROM country);" >> /tmp/sql.cmds #
 echo "Updated Initial Countries"
+	;;
+
+	298.csv) #Institution data - combined into one case in order to import information in correct order to account for changes in type through progress
+	#Other Institution data
+echo "DELETE FROM institution_import_other;" >> /tmp/sql.cmds #
+echo ".import $path/300.csv institution_import_other" >> /tmp/sql.cmds #
+echo "insert INTO institution SELECT * FROM institution_import_other WHERE institution_import_other.ms NOT IN (SELECT ms FROM institution);" >> /tmp/sql.cmds #
+echo "Updated Other Institutions"
+
+echo "DELETE FROM institution_import_full;" >> /tmp/sql.cmds #
+echo ".import $path/299.csv institution_import_full" >> /tmp/sql.cmds #
+echo "insert INTO institution SELECT * FROM institution_import_full WHERE institution_import_full.ms NOT IN (SELECT ms FROM institution);" >> /tmp/sql.cmds #
+echo "Updated Full Institutions"
+
+echo "DELETE FROM institution_import;" >> /tmp/sql.cmds #
+echo ".import $path/298.csv institution_import" >> /tmp/sql.cmds #
+echo "insert INTO institution SELECT * FROM institution_import WHERE institution_import.ms NOT IN (SELECT ms FROM institution);" >> /tmp/sql.cmds #
+echo "Updated Initial Institutions"
 	;;
 
 	221.csv) #Senior editor data
@@ -211,10 +232,10 @@ done
 #Publication date data
 #This is currently pulled from a manually updated file: in the future, it will hopefully be replaced with another downloaded dataset
 
-if [ -e published.csv ]; then
+if [ -e published-research-article-index.csv ]; then
 echo "DELETE FROM published_import;" >> /tmp/sql.cmds #
 echo "DELETE FROM published;" >> /tmp/sql.cmds #
-echo ".import published.csv published_import" >> /tmp/sql.cmds #
+echo ".import published-research-article-index.csv published_import" >> /tmp/sql.cmds #
 echo "INSERT INTO published SELECT * FROM published_import WHERE published_import.ms NOT IN (SELECT ms FROM published);" >> /tmp/sql.cmds #
 echo "UPDATE published SET vor_dt = (SELECT published_import.vor_dt FROM published_import WHERE published.ms=published_import.ms);" >> /tmp/sql.cmds #
 echo "Publication dates updated"
@@ -224,7 +245,7 @@ fi
 
 echo ".header on" >> /tmp/sql.cmds
 echo ".mode csv" >> /tmp/sql.cmds
-echo ".output paper_history${tday}.csv" >> /tmp/sql.cmds
+echo ".output paper_history${tday_out}.csv" >> /tmp/sql.cmds
 
 echo "SELECT t.ms,
 t.type,
@@ -249,8 +270,8 @@ r3.rev3_decision_dt,
 r4.rev4_qc_dt,
 r4.rev4_decision,
 r4.rev4_decision_dt,
-p.poa_dt,
-p.vor_dt
+substr(p.poa_dt,1,10) AS 'p.poa_dt',
+substr(p.vor_dt,1,10) AS 'p.vor_dt'
 
 FROM type t
 LEFT JOIN initial i ON t.ms=i.ms
@@ -268,7 +289,7 @@ ORDER BY t.ms;" >> /tmp/sql.cmds #
 
 #Provide second output CSV file containing appeal information
 
-echo ".output paper_history${tday}_Appeals.csv" >> /tmp/sql.cmds
+echo ".output paper_history${tday_out}_Appeals.csv" >> /tmp/sql.cmds
 
 echo "SELECT t.ms,
 t.type,
@@ -300,8 +321,8 @@ r4.rev4_qc_dt,
 r4.rev4_decision,
 r4.rev4_decision_dt,
 r4.appeal,
-p.poa_dt,
-p.vor_dt
+substr(p.poa_dt,1,10) AS 'p.poa_dt',
+substr(p.vor_dt,1,10) AS 'p.vor_dt'
 
 FROM type t
 LEFT JOIN initial i ON t.ms=i.ms
