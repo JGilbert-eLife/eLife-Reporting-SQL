@@ -20,11 +20,11 @@ tday_out=$(date +%Y-%m-%d)
 
 # Skip user input if NOCONFIRM is set (to anything)
 if [ -z ${NOCONFIRM+x} ]; then
-    # Get user input and decide whether to download new data
-    echo "Get data? [y/n]"
-    read input
+	# Get user input and decide whether to download new data
+	echo "Get data? [y/n]"
+	read input
 else
-    input="y"
+	input="y"
 fi
 
 if [ $input == "y" ]; then
@@ -61,7 +61,7 @@ if [ $input == "y" ]; then
 	# For all the filenames listed above, download files, process and rename
 
 	for report_name in ${initialinput} ${fullinput} ${rev1input} ${rev2input} ${rev3input} ${rev4input} ${typeinput} ${typefullinput} ${typerev1input} ${typerev2input} ${typerev3input} ${seinput1} ${seinput2} ${seinput3} ${reinput} ${country1input} ${country2input} ${country3input} ${institution1input} ${institution2input} ${institution3input}; do
-	    # looks like: 'Institution_1.csv', 'Country_3.csv'
+		# looks like: 'Institution_1.csv', 'Country_3.csv'
 		new_report_name=$(echo $report_name | sed -n "s/ejp_query_tool_query_id_SQL_\(.*\)_${tday}_eLife\.csv$/\1/p")
 
 		# download the file at the remote path to the local path
