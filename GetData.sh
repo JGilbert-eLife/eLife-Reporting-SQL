@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e # all commands must succeed. exits immediately on error
+set -u # no unbound variables
+
 # Script to download and import eLife data into SQLite database
 # For use generating monthly stats
 # issue: sh GetData.sh to run script
@@ -55,20 +58,27 @@ if [ $input == "y" ]; then
 	institution3input="ejp_query_tool_query_id_SQL_Institution_3_${tday}_eLife.csv"
 
 
-	# For all the filenames listed above, download files and rename to query tool ID number
+	# For all the filenames listed above, download files, process and rename
 
-	for i in ${initialinput} ${fullinput} ${rev1input} ${rev2input} ${rev3input} ${rev4input} ${typeinput} ${typefullinput} ${typerev1input} ${typerev2input} ${typerev3input} ${seinput1} ${seinput2} ${seinput3} ${reinput} ${country1input} ${country2input} ${country3input} ${institution1input} ${institution2input} ${institution3input}; do
-		name=$(echo $i | sed -n "s/ejp_query_tool_query_id_SQL_\(.\+\)_${tday}_eLife\.csv$/\1/p")
-		/opt/s3-bash.0.02/s3-get -k  $key -s $skeypath /elife-ejp-ftp/$i > $path/$i.csv
-		egrep "^\"[[:digit:]]*\"," $path/$i.csv | tr -d "\"" > $path/$name.csv
-		rm $path/$i.csv
-		echo "$i"
+	for report_name in ${initialinput} ${fullinput} ${rev1input} ${rev2input} ${rev3input} ${rev4input} ${typeinput} ${typefullinput} ${typerev1input} ${typerev2input} ${typerev3input} ${seinput1} ${seinput2} ${seinput3} ${reinput} ${country1input} ${country2input} ${country3input} ${institution1input} ${institution2input} ${institution3input}; do
+	    # looks like: 'Institution_1.csv', 'Country_3.csv'
+		new_report_name=$(echo $report_name | sed -n "s/ejp_query_tool_query_id_SQL_\(.*\)_${tday}_eLife\.csv$/\1/p")
+
+		# download the file at the remote path to the local path
+		/opt/s3-bash.0.02/s3-get -k $key -s $skeypath /elife-ejp-ftp/$report_name > $path/$report_name.csv
+
+		# 1. ignores lines in file that don't start with a double quoted digit followed by a comma (first four lines of file)
+		# 2. removes double quotes from the remaining lines
+		# 3. writes the results into a new file, deletes the old file
+		egrep "^\"[[:digit:]]*\"," $path/$report_name.csv | tr -d "\"" > $path/$new_report_name.csv
+		rm $path/$report_name.csv
+		echo "$report_name"
 	done
 
 	echo "The above files were downloaded."
 
 else
-	echo "Nothing downloaded"
+	echo "Nothing downloaded."
 
 fi
 
@@ -340,8 +350,12 @@ ORDER BY t.ms;" >> /tmp/sql.cmds #
 
 # Pipe SQL command file to SQLite and command SQLite to open database
 
-cat /tmp/sql.cmds | sqlite3 elife_paper_stats.sqlite
+cat /tmp/sql.cmds | sqlite3 elife_paper_stats.sqlite || echo "done, but with failed SQL (see output)"
+echo "wrote: elife_paper_stats.sqlite"
 
 # Remove SQL command file
 
 rm /tmp/sql.cmds
+
+echo
+echo "done"
