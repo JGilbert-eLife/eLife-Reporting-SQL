@@ -31,7 +31,7 @@ if [ $input == "y" ]; then
 
 	# Clear download folder ahead of download
 
-    # where does 'path' come from? source'd from config.cfg
+	# where does 'path' come from? source'd from config.cfg
 	rm -f "$path/*"
 
 	# Set up variables containing the names of the files required by eLife stats database
