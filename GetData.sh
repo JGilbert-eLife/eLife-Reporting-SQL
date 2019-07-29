@@ -31,7 +31,8 @@ if [ $input == "y" ]; then
 
 	# Clear download folder ahead of download
 
-	rm $path/*
+    # where does 'path' come from? source'd from config.cfg
+	rm -f "$path/*"
 
 	# Set up variables containing the names of the files required by eLife stats database
 
@@ -71,7 +72,7 @@ if [ $input == "y" ]; then
 		# 2. removes double quotes from the remaining lines
 		# 3. writes the results into a new file, deletes the old file
 		egrep "^\"[[:digit:]]*\"," $path/$report_name.csv | tr -d "\"" > $path/$new_report_name.csv
-		rm $path/$report_name.csv
+		rm -f "$path/$report_name.csv"
 		echo "$report_name"
 	done
 
